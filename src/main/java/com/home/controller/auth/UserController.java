@@ -4,20 +4,20 @@ import com.home.dto.auth.UserRequest;
 import com.home.dto.auth.UserResponse;
 import com.home.service.auth.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/home/auth/user")
 public class UserController {
 
-    @Autowired
     private UserService userService;
 
+    public UserController(UserService userService){
+        this.userService = userService;
+    }
+
     @PostMapping("/register")
-    public UserResponse register(@PathVariable UserRequest userRequest){
+    public UserResponse register(@RequestBody UserRequest userRequest){
         return userService.register(userRequest);
     }
 }

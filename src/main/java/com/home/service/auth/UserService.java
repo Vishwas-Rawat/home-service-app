@@ -7,6 +7,7 @@ import com.home.model.auth.Role;
 import com.home.model.auth.User;
 import com.home.repository.auth.RoleRepository;
 import com.home.repository.auth.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -20,9 +21,10 @@ public class UserService {
     @Autowired
     private ApplicationEventPublisher eventPublisher;
 
+    @Transactional
     public UserResponse register(UserRequest userRequest){
     // 1. Check if email is already registered
-    if(userRepository.existByEmail(userRequest.getEmail())){
+    if(userRepository.existsByEmail(userRequest.getEmail())){
         throw new RuntimeException("Error: Email is already taken!");
     }
 
