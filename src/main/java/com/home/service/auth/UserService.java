@@ -10,6 +10,7 @@ import com.home.repository.auth.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,6 +21,8 @@ public class UserService {
     private RoleRepository roleRepository;
     @Autowired
     private ApplicationEventPublisher eventPublisher;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Transactional
     public UserResponse register(UserRequest userRequest){
@@ -36,9 +39,10 @@ public class UserService {
         User tempUser = new User();
         tempUser.setName(userRequest.getName());
         tempUser.setEmail(userRequest.getEmail());
-        tempUser.setPassword(userRequest.getPassword());
+        tempUser.setPassword(passwordEncoder.encode(userRequest.getPassword()));
         tempUser.setRole(role);
         tempUser.setStatus("ACTIVE");
+
 
     // 4. Save the user to the database
        User savedUser = userRepository.save(tempUser);
