@@ -13,8 +13,8 @@ public class ProviderProfileEventListener {
     private ProviderProfileRepository providerProfileRepository;
 
     @EventListener
-    public void providerEventListener(UserRegisteredEvent userRegisteredEvent){
-        if("PROVIDER".equalsIgnoreCase(userRegisteredEvent.getUser().getRole().getName())){
+    public void providerEventListener(UserRegisteredEvent userRegisteredEvent) {
+        if ("PROVIDER".equalsIgnoreCase(userRegisteredEvent.getUser().getRole().getName())) {
             ProviderProfile providerProfile = new ProviderProfile();
             providerProfile.setFirstName(providerProfile.getFirstName());
             providerProfile.setLastName(providerProfile.getLastName());

@@ -1,7 +1,10 @@
 package com.home.service.auth;
 
-import com.home.dto.auth.UserRequest;
-import com.home.dto.auth.UserResponse;
+import com.home.config.JwtTokenProvider;
+import com.home.dto.auth.LoginRequest;
+import com.home.dto.auth.LoginResponse;
+import com.home.dto.auth.RegisterRequest;
+import com.home.dto.auth.RegisterResponse;
 import com.home.event.auth.UserRegisteredEvent;
 import com.home.model.auth.Role;
 import com.home.model.auth.User;
@@ -10,6 +13,10 @@ import com.home.repository.auth.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -23,9 +30,18 @@ public class UserService {
     private ApplicationEventPublisher eventPublisher;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private AuthenticationManager authenticationManager;
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
 
     @Transactional
-    public UserResponse register(UserRequest userRequest){
+    public RegisterResponse register(RegisterRequest userRequest){
+
+        if(userRequest.getRole().equalsIgnoreCase("ADMIN")){
+            throw new RuntimeException("Admin registration is not allowed");
+        }
+
     // 1. Check if email is already registered
     if(userRepository.existsByEmail(userRequest.getEmail())){
         throw new RuntimeException("Error: Email is already taken!");
@@ -51,10 +67,26 @@ public class UserService {
         eventPublisher.publishEvent(new UserRegisteredEvent(savedUser));
 
     // 6. Build and return the response DTO
-        UserResponse userResponse = new UserResponse();
+        RegisterResponse userResponse = new RegisterResponse();
         userResponse.setName(savedUser.getName());
         userResponse.setEmail(savedUser.getEmail());
         userResponse.setMessage("User registered successfully!");
         return userResponse;
+    }
+
+    public LoginResponse login(LoginRequest loginRequest) {
+        // 1. Verify the email and password credentials
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
+        );
+
+        // 2. Set authentication in context
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // 3. Generate the token
+        String jwtToken = jwtTokenProvider.generateToken(authentication);
+
+        // 4. Return the token and type "Bearer"
+        return new LoginResponse(jwtToken, "Bearer");
     }
 }
