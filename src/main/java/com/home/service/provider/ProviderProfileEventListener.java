@@ -16,12 +16,22 @@ public class ProviderProfileEventListener {
     public void providerEventListener(UserRegisteredEvent userRegisteredEvent) {
         if ("PROVIDER".equalsIgnoreCase(userRegisteredEvent.getUser().getRole().getName())) {
             ProviderProfile providerProfile = new ProviderProfile();
-            providerProfile.setFirstName(providerProfile.getFirstName());
-            providerProfile.setLastName(providerProfile.getLastName());
-            providerProfile.setPhoneNumber(providerProfile.getPhoneNumber());
-            providerProfile.setShopName(providerProfile.getShopName());
-            providerProfile.setShopDetails(providerProfile.getShopDetails());
+
+            // 1. Link the profile to the registered User (Mandatory OneToOne relationship)
+            providerProfile.setUser(userRegisteredEvent.getUser());
+
+            // 2. Set registration values
+            providerProfile.setFirstName(userRegisteredEvent.getUser().getName());
+            providerProfile.setLastName("");
+            providerProfile.setPhoneNumber("");
+
+            // 3. Set shop defaults (these are nullable in DB and can be filled in later by the user)
+            providerProfile.setShopName(null);
+            providerProfile.setShopDetails(null);
+
+            // 4. Set availability
             providerProfile.setIsAvailable(true);
+
             providerProfileRepository.save(providerProfile);
         }
     }
