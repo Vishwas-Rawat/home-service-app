@@ -1,4 +1,4 @@
-package com.home.dto.catalog;
+package com.home.dto.booking;
 
 import lombok.Data;
 
@@ -6,12 +6,12 @@ import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
-public class CustomerBookingListResponse {
+public class AvailableBookingsResponse {
     private Integer bookingId;
+    private Integer customerId;
+    private Integer categoryId;
     private String categoryName;
-    private String description;
-    private String improvedDescription;
+    private String originalDescription;
     private String status;
-    private String message;
     private LocalDateTime createdAt;
 }

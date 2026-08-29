@@ -15,6 +15,9 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class ProviderService {
 
@@ -91,5 +94,20 @@ public class ProviderService {
         response.setCategoryId(category.getCategoryId());
         response.setCategoryName(category.getName());
         return response;
+    }
+
+    public List<ProviderSkillsResponse> getProviderSkills(String email) {
+        ProviderProfile providerProfile = providerProfileRepository.findByUserEmail(email).orElseThrow(()-> new RuntimeException("No user found for email "+ email));
+
+        List<ProviderSkill> skills =  providerSkillRepository.findByProviderProfile_ProviderId(providerProfile.getProviderId());
+
+        return skills.stream().map(skill->{
+            ProviderSkillsResponse providerSkillsResponse = new ProviderSkillsResponse();
+            providerSkillsResponse.setId(skill.getId());
+            providerSkillsResponse.setCategoryId(skill.getCategory().getCategoryId());
+            providerSkillsResponse.setCategoryName(skill.getCategory().getName());
+            providerSkillsResponse.setProviderId(skill.getProviderProfile().getProviderId());
+            return providerSkillsResponse;
+        }).collect(Collectors.toList());
     }
 }

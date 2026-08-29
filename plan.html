@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Design & Scaling Plan | Home Service Monolith</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0b0f19;
+        }
+        h1, h2, h3, .font-display {
+            font-family: 'Outfit', sans-serif;
+        }
+        .glass-panel {
+            background: rgba(17, 25, 40, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+        }
+        .glow-indigo {
+            box-shadow: 0 0 40px -10px rgba(99, 102, 241, 0.15);
+        }
+        .glow-emerald {
+            box-shadow: 0 0 40px -10px rgba(16, 185, 129, 0.15);
+        }
+        .glow-violet {
+            box-shadow: 0 0 40px -10px rgba(139, 92, 246, 0.15);
+        }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen antialiased selection:bg-indigo-500 selection:text-white pb-20">
+
+    <!-- Header Section -->
+    <header class="relative overflow-hidden py-16 border-b border-slate-800/60 bg-slate-950/40">
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(99,102,241,0.08),transparent_50%)]"></div>
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(139,92,246,0.08),transparent_50%)]"></div>
+        <div class="max-w-7xl mx-auto px-6 relative z-10">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div>
+                    <span class="px-3 py-1 text-xs font-semibold tracking-wider text-indigo-400 bg-indigo-950/60 border border-indigo-800/50 rounded-full uppercase">Architecture Evolution</span>
+                    <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mt-3 text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-indigo-200">
+                        Home Service System Design
+                    </h1>
+                    <p class="text-slate-400 mt-2 text-lg max-w-2xl">
+                        Scaling from a Modular Monolith to an Enterprise-Grade Distributed Microservices Architecture serving lakhs of concurrent users.
+                    </p>
+                </div>
+                <div class="flex gap-3">
+                    <span class="glass-panel px-4 py-2 rounded-lg text-sm font-medium text-slate-300 flex items-center gap-2">
+                        <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        Scale Target: 100k+ CCU
+                    </span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-6 mt-12 grid grid-cols-1 lg:grid-cols-4 gap-8">
+
+        <!-- Sidebar Navigation -->
+        <aside class="lg:col-span-1">
+            <div class="sticky top-8 flex flex-col gap-3">
+                <p class="text-xs font-bold uppercase tracking-wider text-slate-500 px-3">Feature Spec & Scaling</p>
+                <a href="#features" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 transition">
+                    <span class="text-xs font-bold text-indigo-400">00</span> API Features Plan
+                </a>
+                <a href="#gateway" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 transition">
+                    <span class="text-xs font-bold text-indigo-400">01</span> DNS & API Gateway
+                </a>
+                <a href="#services" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 transition">
+                    <span class="text-xs font-bold text-indigo-400">02</span> Modular Monolith
+                </a>
+                <a href="#caching" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 transition">
+                    <span class="text-xs font-bold text-indigo-400">03</span> Persistence & Caching
+                </a>
+                <a href="#async" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 transition">
+                    <span class="text-xs font-bold text-indigo-400">04</span> Kafka & Asynchronous Processing
+                </a>
+                <a href="#observability" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 transition">
+                    <span class="text-xs font-bold text-indigo-400">05</span> Observability & Logs
+                </a>
+                <a href="#devops" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 transition">
+                    <span class="text-xs font-bold text-indigo-400">06</span> Kubernetes & DevOps
+                </a>
+            </div>
+        </aside>
+
+        <!-- Planning Sections -->
+        <section class="lg:col-span-3 space-y-12">
+
+            <!-- Section 0: Features Plan -->
+            <div id="features" class="glass-panel rounded-2xl p-8 glow-indigo relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-3xl"></div>
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="p-2.5 bg-indigo-500/10 text-indigo-400 rounded-lg">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                    </div>
+                    <h2 class="text-2xl font-bold">0. Application Features Plan & Endpoints</h2>
+                </div>
+                <p class="text-slate-300 leading-relaxed mb-6">
+                    The complete functional design specifications mapping out all user-facing, provider-facing, and system-level features across our phases:
+                </p>
+
+                <div class="space-y-8 mt-6">
+                    <!-- Auth Endpoints -->
+                    <div>
+                        <h4 class="font-bold text-indigo-400 text-sm uppercase tracking-wide mb-3">1. User Account & Security Features (Auth Module)</h4>
+                        <ul class="list-disc pl-5 text-xs text-slate-400 mb-3 space-y-1">
+                            <li><strong>Role-Based Registration:</strong> Registers accounts under dedicated CUSTOMER or PROVIDER roles.</li>
+                            <li><strong>Decoupled Profile Setup:</strong> Spring Events automatically initialize correct profile entities on registration.</li>
+                            <li><strong>Password Encryption:</strong> All raw passwords encrypted using BCrypt prior to database persistence.</li>
+                            <li><strong>Stateless Authentication (JWT):</strong> Generates secure, signed tokens upon successful login verification.</li>
+                        </ul>
+                        <div class="space-y-2">
+                            <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800/50 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+                                <span class="font-mono text-slate-300"><span class="px-2 py-0.5 bg-indigo-900/60 text-indigo-400 border border-indigo-700/50 rounded font-bold uppercase mr-2">POST</span>/home/auth/user/register</span>
+                                <span class="text-slate-400 text-right">Registers account & initializes profile database entry.</span>
+                            </div>
+                            <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800/50 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+                                <span class="font-mono text-slate-300"><span class="px-2 py-0.5 bg-indigo-900/60 text-indigo-400 border border-indigo-700/50 rounded font-bold uppercase mr-2">POST</span>/home/auth/user/login</span>
+                                <span class="text-slate-400 text-right">Verifies credentials and returns a secure JWT token.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Customer Endpoints -->
+                    <div>
+                        <h4 class="font-bold text-indigo-400 text-sm uppercase tracking-wide mb-3">2. Customer Module</h4>
+                        <ul class="list-disc pl-5 text-xs text-slate-400 mb-3 space-y-1">
+                            <li><strong>Profile Management:</strong> Update contact data, first name, last name, and contact details.</li>
+                            <li><strong>Saved Address Book:</strong> Support for saving multiple addresses (Home, Office) with a default flag toggle.</li>
+                            <li><strong>Browse Catalog:</strong> Fetch and view all active service categories supported by the platform.</li>
+                            <li><strong>Create Booking:</strong> Request service bookings, which are auto-classified and summarized by AI.</li>
+                            <li><strong>Job Tracking:</strong> Monitor past historical jobs and current active job lifecycle states.</li>
+                        </ul>
+                        <div class="space-y-2">
+                            <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800/50 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+                                <span class="font-mono text-slate-300"><span class="px-2 py-0.5 bg-amber-900/60 text-amber-400 border border-amber-700/50 rounded font-bold uppercase mr-2">PUT</span>/home/customer/profile</span>
+                                <span class="text-slate-400 text-right">Updates customer profile details.</span>
+                            </div>
+                            <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800/50 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+                                <span class="font-mono text-slate-300"><span class="px-2 py-0.5 bg-indigo-900/60 text-indigo-400 border border-indigo-700/50 rounded font-bold uppercase mr-2">POST</span>/home/customer/addresses</span>
+                                <span class="text-slate-400 text-right">Adds an address to the customer's saved address book.</span>
+                            </div>
+                            <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800/50 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+                                <span class="font-mono text-slate-300"><span class="px-2 py-0.5 bg-sky-900/60 text-sky-400 border border-sky-700/50 rounded font-bold uppercase mr-2">GET</span>/home/catalog/categories</span>
+                                <span class="text-slate-400 text-right">Retrieves active categories in the services catalog.</span>
+                            </div>
+                            <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800/50 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+                                <span class="font-mono text-slate-300"><span class="px-2 py-0.5 bg-indigo-900/60 text-indigo-400 border border-indigo-700/50 rounded font-bold uppercase mr-2">POST</span>/home/customer/bookings</span>
+                                <span class="text-slate-400 text-right">Creates a service request with description summaries.</span>
+                            </div>
+                            <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800/50 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+                                <span class="font-mono text-slate-300"><span class="px-2 py-0.5 bg-sky-900/60 text-sky-400 border border-sky-700/50 rounded font-bold uppercase mr-2">GET</span>/home/customer/bookings</span>
+                                <span class="text-slate-400 text-right">Fetches historical booking requests created by the customer.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Provider Endpoints -->
+                    <div>
+                        <h4 class="font-bold text-indigo-400 text-sm uppercase tracking-wide mb-3">3. Provider Module</h4>
+                        <ul class="list-disc pl-5 text-xs text-slate-400 mb-3 space-y-1">
+                            <li><strong>Shop Setup:</strong> Configure shop name, portfolio descriptions, and contact metadata.</li>
+                            <li><strong>Online Toggle:</strong> Toggle active availability status to appear or hide in job matching queues.</li>
+                            <li><strong>Register Skills:</strong> Choose categories (e.g. Electrical, Plumbing) they are qualified to perform.</li>
+                            <li><strong>Job Dispatch Feed:</strong> Read matching, unassigned requests nearby.</li>
+                            <li><strong>Accept Bookings:</strong> Claim unassigned service requests.</li>
+                            <li><strong>Status Progression:</strong> Progress jobs through: ON_THE_WAY, ARRIVED, COMPLETED.</li>
+                        </ul>
+                        <div class="space-y-2">
+                            <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800/50 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+                                <span class="font-mono text-slate-300"><span class="px-2 py-0.5 bg-amber-900/60 text-amber-400 border border-amber-700/50 rounded font-bold uppercase mr-2">PUT</span>/home/provider/profile</span>
+                                <span class="text-slate-400 text-right">Updates shop info, availability, and contact data.</span>
+                            </div>
+                            <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800/50 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+                                <span class="font-mono text-slate-300"><span class="px-2 py-0.5 bg-indigo-900/60 text-indigo-400 border border-indigo-700/50 rounded font-bold uppercase mr-2">POST</span>/home/provider/profile/skills</span>
+                                <span class="text-slate-400 text-right">Associates provider skills with service categories.</span>
+                            </div>
+                            <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800/50 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+                                <span class="font-mono text-slate-300"><span class="px-2 py-0.5 bg-sky-900/60 text-sky-400 border border-sky-700/50 rounded font-bold uppercase mr-2">GET</span>/home/provider/bookings/matching</span>
+                                <span class="text-slate-400 text-right">Fetches matching job requests currently in REQUESTED status.</span>
+                            </div>
+                            <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800/50 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+                                <span class="font-mono text-slate-300"><span class="px-2 py-0.5 bg-indigo-900/60 text-indigo-400 border border-indigo-700/50 rounded font-bold uppercase mr-2">POST</span>/home/provider/bookings/{id}/accept</span>
+                                <span class="text-slate-400 text-right">Claims booking request and sets status to ACCEPTED.</span>
+                            </div>
+                            <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800/50 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+                                <span class="font-mono text-slate-300"><span class="px-2 py-0.5 bg-amber-900/60 text-amber-400 border border-amber-700/50 rounded font-bold uppercase mr-2">PUT</span>/home/provider/bookings/{id}/status</span>
+                                <span class="text-slate-400 text-right">Updates active job status through valid lifecycle transitions.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI & Admin Module -->
+                    <div>
+                        <h4 class="font-bold text-indigo-400 text-sm uppercase tracking-wide mb-3">4. AI & Administrative Module (Phase 1)</h4>
+                        <ul class="list-disc pl-5 text-xs text-slate-400 mb-3 space-y-1">
+                            <li><strong>AI Description Cleanups:</strong> Local Ollama model rewrites messy, typos-filled user texts into clean summaries.</li>
+                            <li><strong>AI Auto-Classification:</strong> Automatically assigns booking to a category based on the description text.</li>
+                            <li><strong>Offline Fallbacks:</strong> If local AI is offline, logs details and keeps original text, allowing standard booking.</li>
+                            <li><strong>Platform Catalog:</strong> Add/manage category database records via admin interface.</li>
+                            <li><strong>Platform Auditing:</strong> Logs administrator audits when critical actions are taken.</li>
+                        </ul>
+                        <div class="space-y-2">
+                            <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800/50 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+                                <span class="font-mono text-slate-300"><span class="px-2 py-0.5 bg-indigo-900/60 text-indigo-400 border border-indigo-700/50 rounded font-bold uppercase mr-2">POST</span>/home/admin/categories</span>
+                                <span class="text-slate-400 text-right">Creates a new service category in the database.</span>
+                            </div>
+                            <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800/50 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+                                <span class="font-mono text-slate-300"><span class="px-2 py-0.5 bg-sky-900/60 text-sky-400 border border-sky-700/50 rounded font-bold uppercase mr-2">GET</span>/home/admin/audit-logs</span>
+                                <span class="text-slate-400 text-right">Retrieves platform administrative logs.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Future Roadmap Section -->
+                    <div class="pt-6 border-t border-slate-800/80">
+                        <h4 class="font-bold text-emerald-400 text-sm uppercase tracking-wide mb-3 flex items-center gap-2">
+                            <span>🚀</span> Future Roadmap & API Spec (Phase 2+)
+                        </h4>
+                        
+                        <div class="space-y-4 mt-4">
+                            <!-- Reviews Module -->
+                            <div>
+                                <h5 class="font-bold text-slate-300 text-xs uppercase tracking-wider mb-2">1. Reviews & Ratings System</h5>
+                                <div class="space-y-2">
+                                    <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800/50 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+                                        <span class="font-mono text-slate-300"><span class="px-2 py-0.5 bg-indigo-900/60 text-indigo-400 border border-indigo-700/50 rounded font-bold uppercase mr-2">POST</span>/home/customer/reviews</span>
+                                        <span class="text-slate-400 text-right">Submits a 1-5 star review and comment for a completed booking.</span>
+                                    </div>
+                                    <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800/50 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+                                        <span class="font-mono text-slate-300"><span class="px-2 py-0.5 bg-sky-900/60 text-sky-400 border border-sky-700/50 rounded font-bold uppercase mr-2">GET</span>/home/provider/{id}/reviews</span>
+                                        <span class="text-slate-400 text-right">Fetches all customer reviews and average score for a provider.</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Payments Module -->
+                            <div>
+                                <h5 class="font-bold text-slate-300 text-xs uppercase tracking-wider mb-2">2. Escrow Payments Integration</h5>
+                                <div class="space-y-2">
+                                    <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800/50 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+                                        <span class="font-mono text-slate-300"><span class="px-2 py-0.5 bg-indigo-900/60 text-indigo-400 border border-indigo-700/50 rounded font-bold uppercase mr-2">POST</span>/home/payment/checkout</span>
+                                        <span class="text-slate-400 text-right">Initiates Stripe session to pre-authorize booking charges.</span>
+                                    </div>
+                                    <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800/50 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+                                        <span class="font-mono text-slate-300"><span class="px-2 py-0.5 bg-indigo-900/60 text-indigo-400 border border-indigo-700/50 rounded font-bold uppercase mr-2">POST</span>/home/payment/release/{bookingId}</span>
+                                        <span class="text-slate-400 text-right">Releases escrowed payment to the provider's wallet on completion.</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- KYC Module -->
+                            <div>
+                                <h5 class="font-bold text-slate-300 text-xs uppercase tracking-wider mb-2">3. Provider KYC & Verification Flow</h5>
+                                <div class="space-y-2">
+                                    <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800/50 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+                                        <span class="font-mono text-slate-300"><span class="px-2 py-0.5 bg-indigo-900/60 text-indigo-400 border border-indigo-700/50 rounded font-bold uppercase mr-2">POST</span>/home/provider/kyc/documents</span>
+                                        <span class="text-slate-400 text-right">Uploads provider identity credentials and business certifications.</span>
+                                    </div>
+                                    <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800/50 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+                                        <span class="font-mono text-slate-300"><span class="px-2 py-0.5 bg-amber-900/60 text-amber-400 border border-amber-700/50 rounded font-bold uppercase mr-2">PUT</span>/home/admin/provider/{id}/verify</span>
+                                        <span class="text-slate-400 text-right">Admin verifies documents and toggles is_verified = true.</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Real-time Module -->
+                            <div>
+                                <h5 class="font-bold text-slate-300 text-xs uppercase tracking-wider mb-2">4. Live GPS Tracking & WebSockets</h5>
+                                <div class="space-y-2">
+                                    <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800/50 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+                                        <span class="font-mono text-slate-300"><span class="px-2 py-0.5 bg-violet-900/60 text-violet-400 border border-violet-700/50 rounded font-bold uppercase mr-2">WS</span>/home/ws/tracking</span>
+                                        <span class="text-slate-400 text-right">Establishes bidirectional WebSocket connection for pushing/consuming live provider GPS coordinates.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 1: Ingress & Routing -->
+            <div id="gateway" class="glass-panel rounded-2xl p-8 glow-indigo relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-3xl"></div>
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="p-2.5 bg-indigo-500/10 text-indigo-400 rounded-lg">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 11-3-3V3m3 8V3m0 0h4M4 9h16" />
+                        </svg>
+                    </div>
+                    <h2 class="text-2xl font-bold">1. Entry Point: Traffic Ingress & Routing</h2>
+                </div>
+                <p class="text-slate-300 leading-relaxed">
+                    To handle high concurrent loads, traffic must be optimized at the network edge before it ever reaches the Spring Boot container instances:
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                    <div class="bg-slate-900/60 p-5 border border-slate-800/50 rounded-xl">
+                        <h4 class="font-bold text-indigo-400 text-sm uppercase tracking-wide">DNS & CDN Caching</h4>
+                        <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                            Use Cloudflare/AWS Route53 for intelligent Geo-routing. Static assets (images, web resources) are cached at Edge servers, offloading 70% of reads from the core application servers.
+                        </p>
+                    </div>
+                    <div class="bg-slate-900/60 p-5 border border-slate-800/50 rounded-xl">
+                        <h4 class="font-bold text-indigo-400 text-sm uppercase tracking-wide">API Gateway (Spring Cloud Gateway)</h4>
+                        <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                            Functions as the single entrypoint for client requests. Resolves routing, handles cross-cutting concerns like rate limiting (Token Bucket via Redis), and performs initial JWT token signature validation.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Modular Monolith -->
+            <div id="services" class="glass-panel rounded-2xl p-8 glow-violet relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-violet-500/5 rounded-full blur-3xl"></div>
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="p-2.5 bg-violet-500/10 text-violet-400 rounded-lg">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                        </svg>
+                    </div>
+                    <h2 class="text-2xl font-bold">2. The Modular Monolithic Architecture</h2>
+                </div>
+                <p class="text-slate-300 leading-relaxed">
+                    Our application is structured as a Modular Monolith inside a single Spring Boot deployable. Rather than running separated, distributed network servers, domains are strictly isolated by Java package layouts. Communication across modules is kept clean via decoupled Spring Application Events and isolated database schemas:
+                </p>
+                <div class="space-y-4 mt-6">
+                    <div class="flex gap-4 p-4 bg-slate-900/40 rounded-xl border border-slate-800/30">
+                        <span class="text-xs font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-800/50 rounded-lg p-2 h-fit">Auth</span>
+                        <div>
+                            <h4 class="font-bold text-slate-200">Auth & Security Module (com.home.auth)</h4>
+                            <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+                                Manages secure user registration, BCrypt password hashing, CustomUserDetailsService lookups, and JWT session token generation.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 p-4 bg-slate-900/40 rounded-xl border border-slate-800/30">
+                        <span class="text-xs font-bold text-indigo-400 bg-indigo-950/60 border border-indigo-800/50 rounded-lg p-2 h-fit">Users</span>
+                        <div>
+                            <h4 class="font-bold text-slate-200">Profile Management Module (com.home.customer / com.home.provider)</h4>
+                            <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+                                Manages user contact fields, customer saved address books, provider shop settings, and online availability toggles. Profile entities are initialized asynchronously on account creation via Decoupled Spring Events.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 p-4 bg-slate-900/40 rounded-xl border border-slate-800/30">
+                        <span class="text-xs font-bold text-violet-400 bg-violet-950/60 border border-violet-800/50 rounded-lg p-2 h-fit">Bookings</span>
+                        <div>
+                            <h4 class="font-bold text-slate-200">Booking & Catalog Engine (com.home.booking / com.home.catalog)</h4>
+                            <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+                                Handles platform catalog definitions and coordinates matching provider skills. Executes booking status lifecycle updates and notifies profile modules asynchronously.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 p-4 bg-slate-900/40 rounded-xl border border-slate-800/30">
+                        <span class="text-xs font-bold text-sky-400 bg-sky-950/60 border border-sky-800/50 rounded-lg p-2 h-fit">AI</span>
+                        <div>
+                            <h4 class="font-bold text-slate-200">Local AI Core (com.home.ai)</h4>
+                            <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+                                Integrates Spring AI with local Ollama containers to run Llama3 algorithms. Automatically improves spelling and classifies user booking category assignments based on text inputs.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: Persistence & Caching -->
+            <div id="caching" class="glass-panel rounded-2xl p-8 glow-emerald relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl"></div>
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="p-2.5 bg-emerald-500/10 text-emerald-400 rounded-lg">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+                        </svg>
+                    </div>
+                    <h2 class="text-2xl font-bold">3. Persistence & Caching Strategy</h2>
+                </div>
+                <p class="text-slate-300 leading-relaxed">
+                    Database read/write locks are the single biggest bottleneck under peak loads. We implement a tiered caching and storage pattern to scale performance:
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                    <div class="bg-slate-900/60 p-4 border border-slate-800/50 rounded-xl">
+                        <h4 class="font-bold text-emerald-400 text-sm">Redis Caching</h4>
+                        <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                            Caches hot database resources (like active provider details, available categories) with a Time-To-Live (TTL) configuration. Reduces database load by up to 80%.
+                        </p>
+                    </div>
+                    <div class="bg-slate-900/60 p-4 border border-slate-800/50 rounded-xl">
+                        <h4 class="font-bold text-emerald-400 text-sm">Read-Write Splits</h4>
+                        <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                            Deploy a Primary PostgreSQL instance for all writes (booking transactions) and multiple Read Replicas. Java dynamically routes read queries to replicas using routing data sources.
+                        </p>
+                    </div>
+                    <div class="bg-slate-900/60 p-4 border border-slate-800/50 rounded-xl">
+                        <h4 class="font-bold text-emerald-400 text-sm">Object Storage</h4>
+                        <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                            Binary data (provider avatars, shop portfolio photos) are uploaded directly to MinIO/S3 and stored as metadata links in the database to prevent database bloat.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 4: Event-Driven Processing -->
+            <div id="async" class="glass-panel rounded-2xl p-8 glow-indigo relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-3xl"></div>
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="p-2.5 bg-indigo-500/10 text-indigo-400 rounded-lg">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                    </div>
+                    <h2 class="text-2xl font-bold">4. Asynchronous Processing & Kafka</h2>
+                </div>
+                <p class="text-slate-300 leading-relaxed">
+                    To keep API responses fast, slow tasks (like notification dispatches, AI prompt summarization, location updates) are handled asynchronously using a message queue:
+                </p>
+                <div class="mt-6 space-y-4">
+                    <div class="bg-slate-900/60 p-5 border border-slate-800/50 rounded-xl flex items-start gap-4">
+                        <div class="p-2 bg-indigo-950 text-indigo-400 rounded-lg text-xs font-bold">Kafka</div>
+                        <div>
+                            <h4 class="font-bold text-slate-200">Apache Kafka Messaging Cluster</h4>
+                            <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+                                Used as the distributed message bus. When a customer submits a booking, the booking service saves the record and publishes a `BookingCreated` event to a Kafka topic.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="bg-slate-900/60 p-5 border border-slate-800/50 rounded-xl flex items-start gap-4">
+                        <div class="p-2 bg-indigo-950 text-indigo-400 rounded-lg text-xs font-bold">Worker</div>
+                        <div>
+                            <h4 class="font-bold text-slate-200">Asynchronous Consumers</h4>
+                            <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+                                *   **AI Worker:** Consumes `BookingCreated` events, sends the description to Ollama, and updates the database with category tags and summary details.
+                                *   **Notification Service:** Consumes event topics and sends email/SMS notifications to matched providers asynchronously.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 5: Observability & Logs -->
+            <div id="observability" class="glass-panel rounded-2xl p-8 glow-violet relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-violet-500/5 rounded-full blur-3xl"></div>
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="p-2.5 bg-violet-500/10 text-violet-400 rounded-lg">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                    </div>
+                    <h2 class="text-2xl font-bold">6. Observability & Monitoring</h2>
+                </div>
+                <p class="text-slate-300 leading-relaxed">
+                    With multiple microservice instances, locating errors becomes extremely complex. We configure the standard monitoring stack:
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                    <div class="bg-slate-900/60 p-4 border border-slate-800/50 rounded-xl">
+                        <h4 class="font-bold text-violet-400 text-sm">Centralized Logs (ELK)</h4>
+                        <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                            Logback writes logs in JSON format. Filebeat collects and pushes them to Logstash/Elasticsearch for real-time indexing and search.
+                        </p>
+                    </div>
+                    <div class="bg-slate-900/60 p-4 border border-slate-800/50 rounded-xl">
+                        <h4 class="font-bold text-violet-400 text-sm">Metrics (Prometheus & Grafana)</h4>
+                        <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                            Java microservices expose resource data via `/actuator/prometheus`. Prometheus pulls metrics, and Grafana maps memory/CPU usages on panels.
+                        </p>
+                    </div>
+                    <div class="bg-slate-900/60 p-4 border border-slate-800/50 rounded-xl">
+                        <h4 class="font-bold text-violet-400 text-sm">Traces (OpenTelemetry)</h4>
+                        <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                            Distributed request tracing maps individual customer request paths across various microservice environments, displaying latency traces.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 6: DevOps & Kubernetes -->
+            <div id="devops" class="glass-panel rounded-2xl p-8 glow-emerald relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl"></div>
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="p-2.5 bg-emerald-500/10 text-emerald-400 rounded-lg">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </div>
+                    <h2 class="text-2xl font-bold">6. DevOps: Docker, CI/CD & Kubernetes</h2>
+                </div>
+                <p class="text-slate-300 leading-relaxed">
+                    Each service is compiled and deployed as isolated containers in a local or cloud cluster managed by Kubernetes.
+                </p>
+
+                <div class="mt-8 space-y-6">
+                    <div>
+                        <h4 class="font-bold text-slate-200 mb-3 flex items-center gap-2">
+                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+                            Multi-Stage Dockerfile Blueprint
+                        </h4>
+                        <pre class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs overflow-x-auto text-emerald-400 font-mono">
+# Stage 1: Compile the Jar file
+FROM maven:3.8.5-openjdk-17-slim AS builder
+WORKDIR /app
+COPY pom.xml .
+COPY src ./src
+RUN mvn clean package -DskipTests
+
+# Stage 2: Create lightweight running container
+FROM openjdk:17-jdk-slim
+WORKDIR /app
+COPY --from=builder /app/target/home-service-application.jar app.jar
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.jar"]</pre>
+                    </div>
+
+                    <div>
+                        <h4 class="font-bold text-slate-200 mb-3 flex items-center gap-2">
+                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+                            Kubernetes Deployment Config Blueprint
+                        </h4>
+                        <pre class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs overflow-x-auto text-sky-400 font-mono">
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service-deployment
+  namespace: home-service
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+      - name: user-service
+        image: vishwasrawat/user-service:latest
+        ports:
+        - containerPort: 8080
+        resources:
+          limits:
+            cpu: "1"
+            memory: 1Gi
+          requests:
+            cpu: "500m"
+            memory: 512Mi
+        envFrom:
+        - configMapRef:
+            name: app-configmap
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: user-service-hpa
+  namespace: home-service
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: user-service-deployment
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 75</pre>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+</body>
+</html>
