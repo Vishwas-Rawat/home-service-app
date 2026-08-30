@@ -6,9 +6,11 @@ import com.home.dto.customer.CustomerBookingResponse;
 import com.home.event.auth.booking.BookingCreatedEvent;
 import com.home.model.booking.Booking;
 import com.home.model.catalog.Category;
+import com.home.model.customer.CustomerAddress;
 import com.home.model.customer.CustomerProfile;
 import com.home.repository.booking.CustomerBookingRepository;
 import com.home.repository.catalog.CategoryRepository;
+import com.home.repository.customer.CustomerAddressRepository;
 import com.home.repository.customer.CustomerProfileRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +33,9 @@ public class CustomerBookingService {
     private CustomerBookingRepository customerBookingRepository;
 
     @Autowired
+    private CustomerAddressRepository customerAddressRepository;
+
+    @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
 
     public CustomerBookingResponse bookService(CustomerBookingRequest customerBookingRequest, String email) {
@@ -41,8 +46,17 @@ public class CustomerBookingService {
         Category category = categoryRepository.findById(customerBookingRequest.getCategoryId()).orElseThrow(
                 () -> new RuntimeException("Category not found with id: " + customerBookingRequest.getCategoryId()));
 
+        CustomerAddress customerAddress = customerAddressRepository.findById(customerBookingRequest.getAddressId())
+                .orElseThrow(()-> new RuntimeException("Address not found for category "+customerBookingRequest.getAddressId()));
+
+        // IDOR (Insecure direct object reference)
+        if (!customerAddress.getCustomerProfile().getCustomerId().equals(customerProfile.getCustomerId())){
+            throw new RuntimeException("Address does not belong to the logged-in customer!");
+        }
+
         Booking booking = new Booking();
         booking.setCustomerProfile(customerProfile);
+        booking.setCustomerAddress(customerAddress);
         booking.setCategory(category);
         booking.setOriginalDescription(customerBookingRequest.getDescription());
         booking.setStatus("REQUESTED");

@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CustomerProfile {
+public class  CustomerProfile {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

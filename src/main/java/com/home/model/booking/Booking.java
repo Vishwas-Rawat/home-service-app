@@ -1,5 +1,6 @@
 package com.home.model.booking;
 
+import com.home.model.customer.CustomerAddress;
 import com.home.model.customer.CustomerProfile;
 import com.home.model.provider.ProviderProfile;
 import com.home.model.catalog.Category;
@@ -30,6 +31,10 @@ public class Booking {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "provider_id")
     private ProviderProfile providerProfile;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "address_id", nullable = false)
+    private CustomerAddress customerAddress;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)

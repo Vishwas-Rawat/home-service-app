@@ -5,6 +5,7 @@ import com.home.dto.customer.CategoryResponse;
 import com.home.model.catalog.Category;
 import com.home.service.catalog.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,6 +20,7 @@ public class CategoryController {
     private CategoryService categoryService;
 
     @GetMapping("/categories")
+    @Cacheable(value = "categories")
     public List<CategoryResponse> getAllCategories(){
         return categoryService.getAllCategories();
     }
